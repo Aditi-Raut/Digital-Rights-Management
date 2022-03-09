@@ -92,16 +92,33 @@ class App extends Component {
     
   }
 
-  viewed = (id,price) =>
+  viewed = (id,price,v_hash) =>
   {
     this.setState({ loading:true });
     console.log("Funds")
-    this.state.dstorage.methods.viewed(id).send( { from: this.state.account, value: window.web3.utils.toWei(price.toString(),'Ether') } )
+    this.state.dstorage.methods.viewed(id).send( { from: this.state.account, value: window.web3.utils.toWei((price*0.0001).toString(),'Ether') } )
     .on('transactionHash', (hash) => {
         this.setState({
          loading: false,
        })
-       window.location.reload()
+       window.location.assign("https://ipfs.infura.io/ipfs/"+v_hash)
+      }).on('error', (e) =>{
+        window.alert('Error')
+        this.setState({loading: false})
+      })
+    
+  }
+
+  reDistribute = (id,price,v_hash) =>
+  {
+    this.setState({ loading:true });
+    console.log("Funds")
+    this.state.dstorage.methods.viewed(id).send( { from: this.state.account, value: window.web3.utils.toWei((price*0.005).toString(),'Ether') } )
+    .on('transactionHash', (hash) => {
+        this.setState({
+         loading: false,
+       })
+       window.location.assign("https://ipfs.infura.io/ipfs/"+v_hash)
       }).on('error', (e) =>{
         window.alert('Error')
         this.setState({loading: false})
@@ -170,6 +187,7 @@ class App extends Component {
               uploadFile={this.uploadFile}
               donateFunds = { this.donateFunds }
               viewed = { this.viewed }
+              reDistribute = { this.reDistribute }
 
             />
         }

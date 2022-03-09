@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { convertBytes } from './helpers';
-import moment from 'moment'
+import moment from 'moment';
+import { Button } from 'react-bootstrap';
 
 
 class Main extends Component {
@@ -13,7 +14,7 @@ class Main extends Component {
             <div className="content">
               <p>&nbsp;</p>
               <div className="card mb-3 mx-auto bg-dark" style={{ maxWidth: '512px' }}>
-                <h2 className="text-white text-monospace bg-dark"><b><ins>Share Your Digital Resource</ins></b></h2>
+                <h2 className="text-white text-monospace bg-dark"><b><ins>Share Your Digital Asset</ins></b></h2>
                   <form onSubmit={(event) => {
                     event.preventDefault()
                     const description = this.fileDescription.value
@@ -34,7 +35,7 @@ class Main extends Component {
                   </form>
               </div>
               <p>&nbsp;</p>
-              <table className="table-sm table-bordered text-monospace" style={{ width: '1000px', maxHeight: '450px'}}>
+              <table className="table-sm table-bordered text-monospace my-5" style={{ width: '1000px', maxHeight: '450px'}}>
                 <thead style={{ 'fontSize': '15px' }}>
                   <tr className="bg-dark text-white">
                     <th scope="col" style={{ width: '10px'}}>id</th>
@@ -43,8 +44,9 @@ class Main extends Component {
                     <th scope="col" style={{ width: '120px'}}>type</th>
                     <th scope="col" style={{ width: '90px'}}>funds</th>
                     <th scope="col" style={{ width: '90px'}}>date</th>
-                    <th scope="col" style={{ width: '120px'}}>uploader/view</th>
-                    <th scope="col" style={{ width: '120px'}}>hash/view/get</th>
+                    <th scope="col" style={{ width: '80px'}}>uploader/view</th>
+                    <th scope="col" style={{ width: '520px'}}>Price</th>
+                    <th scope="col" style={{ width: '520px'}}>hash/view/get</th>
                     <th scope="col" style={{ width: '560px'}}>Donate</th>
                     <th scope="col" style={{ width: '70px'}}>Actions</th>
                   </tr>
@@ -67,30 +69,45 @@ class Main extends Component {
                             {file.uploader.substring(0,10)}...
                           </a>
                          </td>
+                         <td>
+                         View Price: { file.viewPrice*0.0001 } Eth
+                         reDistribute Price: { file.viewPrice*0.005 } Eth
+                         </td>
                         <td>
                         {
 
                             ((file.fileType).match(/^audio/g))
 
-                              ?<button name = { file.fileId }
+                              ?<Button size="lg" className="p-3" name = { file.fileId }
                                       value = { file.viewPrice }
+                                      id = { file.fileHash }
                                       onClick = {(event) => {
-                                            this.props.viewed(event.target.name,event.target.value)
+                                        event.preventDefault()
+                                            this.props.viewed(event.target.name,event.target.value,event.target.id)
                                       }} ><img style={{ width:'100%',height:'100%' }}
                                      src={ require('./visual.jpg') }
-                                /></button>
+                                /></Button>
                               :((file.fileType).match(/^video/g)) 
-                              ? <video style={{ width:'100%',height:'100%' }}>
-                               <source src={"https://ipfs.infura.io/ipfs/" + file.fileHash} type="video/mp4"/>
-                               </video>
-                              : <button name = { file.fileId }
+                              ? <Button size="lg" className="p-3" name = { file.fileId }
                                       value = { file.viewPrice }
+                                      id = { file.fileHash }
+                                      onClick = {(ev) => {
+                                        ev.preventDefault()
+                                            this.props.viewed(ev.target.name,ev.target.value, ev.target.id)
+                                      }} ><video style={{ width:'70%',height:'60%' }}>
+                                      <source src={"https://ipfs.infura.io/ipfs/" + file.fileHash} type="video/mp4"/>
+                               </video>
+                               </Button>
+                              : <Button size="lg" className="p-3" name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      id = { file.fileHash }
                                       onClick = {(et) => {
+                                        console.log(et.target.id)
                                            et.preventDefault()
-                                            this.props.viewed(et.target.name,et.target.value)
-                                      }} ><img style={{ width:'100%',height:'100%' }}
+                                            this.props.viewed(et.target.name,et.target.value, et.target.id)
+                                      }} ><img className="px-0" style={{ width:'100%',height:'100%' }}
                             src={"https://ipfs.infura.io/ipfs/" + file.fileHash}
-                            /></button>
+                            /></Button>
 
                             
                             }
@@ -125,10 +142,31 @@ class Main extends Component {
 
                             ((file.fileType).match(/^audio/g))
 
-                              ?<button>Remix</button>
+                              ?<button  name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      id = { file.fileHash }
+                                      onClick = {(et) => {
+                                        console.log(et.target.id)
+                                           et.preventDefault()
+                                            this.props.reDistribute(et.target.name,et.target.value, et.target.id)
+                                      }} >Remix</button>
                               :((file.fileType).match(/^video/g)) 
-                              ? <button> Clip </button>
-                              : <button>Download</button>
+                              ? <button  name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      id = { file.fileHash }
+                                      onClick = {(et) => {
+                                        console.log(et.target.id)
+                                           et.preventDefault()
+                                            this.props.reDistribute(et.target.name,et.target.value, et.target.id)
+                                      }} > Clip </button>
+                              : <button  name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      id = { file.fileHash }
+                                      onClick = {(et) => {
+                                        console.log(et.target.id)
+                                           et.preventDefault()
+                                            this.props.reDistribute(et.target.name,et.target.value, et.target.id)
+                                      }} >Download</button>
 
                             
                             }
