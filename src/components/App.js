@@ -75,6 +75,42 @@ class App extends Component {
 
   }
 
+  donateFunds = (id,price) =>
+  {
+    this.setState({ loading:true });
+    console.log("Funds")
+    this.state.dstorage.methods.fundsDonated(id).send( { from: this.state.account, value: price } )
+    .on('transactionHash', (hash) => {
+        this.setState({
+         loading: false,
+       })
+       window.location.reload()
+      }).on('error', (e) =>{
+        window.alert('Error')
+        this.setState({loading: false})
+      })
+    
+  }
+
+  viewed = (id,price) =>
+  {
+    this.setState({ loading:true });
+    console.log("Funds")
+    this.state.dstorage.methods.viewed(id).send( { from: this.state.account, value: window.web3.utils.toWei(price.toString(),'Ether') } )
+    .on('transactionHash', (hash) => {
+        this.setState({
+         loading: false,
+       })
+       window.location.reload()
+      }).on('error', (e) =>{
+        window.alert('Error')
+        this.setState({loading: false})
+      })
+    
+  }
+
+
+
 
   //Upload File
   uploadFile = description => {
@@ -93,7 +129,7 @@ class App extends Component {
       if(this.state.type === ''){
         this.setState({type: 'none'})
       }
-      this.state.dstorage.methods.uploadFile(result[0].hash, result[0].size, this.state.type, this.state.name, description).send({ from: this.state.account }).on('transactionHash', (hash) => {
+      this.state.dstorage.methods.uploadFile(result[0].hash, this.state.type, this.state.name, description).send({ from: this.state.account }).on('transactionHash', (hash) => {
         this.setState({
          loading: false,
          type: null,
@@ -119,6 +155,7 @@ class App extends Component {
     }
 
     //Bind functions
+     // this.donateFunds = this.donateFunds.bind(this)
   }
 
   render() {
@@ -131,6 +168,9 @@ class App extends Component {
               files={this.state.files}
               captureFile={this.captureFile}
               uploadFile={this.uploadFile}
+              donateFunds = { this.donateFunds }
+              viewed = { this.viewed }
+
             />
         }
       </div>

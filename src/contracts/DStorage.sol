@@ -10,13 +10,13 @@ contract DStorage {
   struct File {
     uint fileId;
     string fileHash;
-    uint fileSize;
     string fileType;
     string fileName;
     string fileDescription;
     uint uploadTime;
     uint funds;
     uint views;
+    uint viewPrice;
     address payable uploader;
     address payable owner;
 
@@ -27,13 +27,13 @@ contract DStorage {
   event FileUploaded(
     uint fileId,
     string fileHash,
-    uint fileSize,
     string fileType,
     string fileName, 
     string fileDescription,
     uint uploadTime,
     uint funds,
     uint views,
+    uint viewPrice,
     address payable uploader,
     address payable owner
   );
@@ -41,13 +41,13 @@ contract DStorage {
   event FundsDonated(
     uint fileId,
     string fileHash,
-    uint fileSize,
     string fileType,
     string fileName, 
     string fileDescription,
     uint uploadTime,
     uint funds,
     uint views,
+    uint viewPrice,
     address payable uploader,
     address payable owner
   );
@@ -58,6 +58,7 @@ contract DStorage {
   function fundsDonated(uint _id) public payable {
     File memory _file = files[_id];
 
+
     address payable _creator = _file.owner;
 
         //Make sure the product has a valid id
@@ -65,21 +66,72 @@ contract DStorage {
         //Require there is enough ether in the transaction
         require(msg.value > 0);
         require(_file.owner != msg.sender);
-        //Update the Product
-        files[_id] = _file;
 
         //Pay the seller by sending them ether
         address(_file.owner).transfer(msg.value);
         
         _file.funds = _file.funds + (msg.value);
 
+        //Update the Product
+        files[_id] = _file;
+
         //Trigger an event
-        emit FundsDonated(fileCount,_file.fileHash,_file.fileSize,_file.fileType,_file.fileName,_file.fileDescription,_file.uploadTime,_file.funds,_file.views, _file.uploader,_file.owner);
+        emit FundsDonated(fileCount,_file.fileHash,_file.fileType,_file.fileName,_file.fileDescription,_file.uploadTime,_file.funds,_file.views,_file.viewPrice, _file.uploader,_file.owner);
 
   }
 
+  function viewed(uint _id) public payable {
+    File memory _file = files[_id];
+
+
+    address payable _creator = _file.owner;
+
+        //Make sure the product has a valid id
+        require(_file.fileId > 0 && _file.fileId <= fileCount);
+        //Require there is enough ether in the transaction
+        require(msg.value > 0);
+        require(_creator != msg.sender);
+
+        _file.views++;
+        if(_file.views<20)
+        {
+          _file.viewPrice = 10;
+        }
+        else if(_file.views>=20 && _file.views<100)
+        {
+          _file.viewPrice = 20;
+        }
+        else if(_file.views>=100 && _file.views<250)
+        {
+          _file.viewPrice = 30;
+        }
+        else if(_file.views>=250 && _file.views<500)
+        {
+          _file.viewPrice = 40;
+        }
+        else
+        {
+           _file.viewPrice = 50;
+        }
+
+
+        //Pay the seller by sending them ether
+        address(_file.owner).transfer(msg.value);
+        
+        _file.funds = _file.funds + (msg.value);
+
+        //Update the Product
+        files[_id] = _file;
+
+        //Trigger an event
+        emit FundsDonated(fileCount,_file.fileHash,_file.fileType,_file.fileName,_file.fileDescription,_file.uploadTime,_file.funds,_file.views,_file.viewPrice, _file.uploader,_file.owner);
+
+  }
+
+
+
 // Upload File function
-function uploadFile(string memory _fileHash, uint _fileSize, string memory _fileType, string memory _fileName, string memory _fileDescription) public {
+function uploadFile(string memory _fileHash, string memory _fileType, string memory _fileName, string memory _fileDescription) public {
     // Make sure the file hash exists
     require(bytes(_fileHash).length > 0);
     // Make sure file type exists
@@ -91,15 +143,14 @@ function uploadFile(string memory _fileHash, uint _fileSize, string memory _file
     // Make sure uploader address exists
     require(msg.sender!=address(0));
     // Make sure file size is more than 0
-    require(_fileSize>0);
 
     // Increment file id
     fileCount ++;
 
     // Add File to the contract
-    files[fileCount] = File(fileCount, _fileHash, _fileSize, _fileType, _fileName, _fileDescription, now,0,0, msg.sender, msg.sender);
+    files[fileCount] = File(fileCount, _fileHash,_fileType, _fileName, _fileDescription, now,0,0,10, msg.sender, msg.sender);
     // Trigger an event
-    emit FileUploaded(fileCount, _fileHash, _fileSize, _fileType, _fileName, _fileDescription, now,0,0, msg.sender,msg.sender);
+    emit FileUploaded(fileCount, _fileHash, _fileType, _fileName, _fileDescription, now,0,0,10, msg.sender,msg.sender);
   }
   
 }

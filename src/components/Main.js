@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { convertBytes } from './helpers';
 import moment from 'moment'
 
+
 class Main extends Component {
 
   render() {
@@ -29,7 +30,7 @@ class Main extends Component {
                             required />
                       </div>
                     <input type="file" onChange={this.props.captureFile} className="text-white text-monospace my-3 py-3"/>
-                    <button type="submit" className="btn-success btn-block"><b>Upload!</b></button>
+                    <button type="submit" className="btn-primary btn-block"><b>Upload!</b></button>
                   </form>
               </div>
               <p>&nbsp;</p>
@@ -40,7 +41,7 @@ class Main extends Component {
                     <th scope="col" style={{ width: '100px'}}>name</th>
                     <th scope="col" style={{ width: '230px'}}>description</th>
                     <th scope="col" style={{ width: '120px'}}>type</th>
-                    <th scope="col" style={{ width: '90px'}}>size</th>
+                    <th scope="col" style={{ width: '90px'}}>funds</th>
                     <th scope="col" style={{ width: '90px'}}>date</th>
                     <th scope="col" style={{ width: '120px'}}>uploader/view</th>
                     <th scope="col" style={{ width: '120px'}}>hash/view/get</th>
@@ -55,8 +56,8 @@ class Main extends Component {
                         <td>{file.fileId}</td>
                         <td>{file.fileName}</td>
                         <td>{file.fileDescription}</td>
-                        <td>{file.fileType}</td>
-                        <td>{convertBytes(file.fileSize)}</td>
+                        <td>{ file.fileType}</td>
+                        <td>{ window.web3.utils.fromWei(file.funds.toString(),'Ether') } Eth</td>
                         <td>{moment.unix(file.uploadTime).format('h:mm:ss A M/D/Y')}</td>
                         <td>
                           <a
@@ -67,22 +68,49 @@ class Main extends Component {
                           </a>
                          </td>
                         <td>
-                          <a
-                            href={"https://ipfs.infura.io/ipfs/" + file.fileHash}
-                            rel="noopener noreferrer"
-                            target="_blank"  >
-                            {file.fileHash.substring(0,10)}...
-                            </a>
+                        {
+
+                            ((file.fileType).match(/^audio/g))
+
+                              ?<button name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      onClick = {(event) => {
+                                            this.props.viewed(event.target.name,event.target.value)
+                                      }} ><img style={{ width:'100%',height:'100%' }}
+                                     src={ require('./visual.jpg') }
+                                /></button>
+                              :((file.fileType).match(/^video/g)) 
+                              ? <video style={{ width:'100%',height:'100%' }}>
+                               <source src={"https://ipfs.infura.io/ipfs/" + file.fileHash} type="video/mp4"/>
+                               </video>
+                              : <button name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      onClick = {(et) => {
+                                           et.preventDefault()
+                                            this.props.viewed(et.target.name,et.target.value)
+                                      }} ><img style={{ width:'100%',height:'100%' }}
+                            src={"https://ipfs.infura.io/ipfs/" + file.fileHash}
+                            /></button>
+
+                            
+                            }
+                          
                         
                         </td>
                         <td>
-                          <form>
+                          <form onSubmit={(e) => {
+                            e.preventDefault()
+                            const id = file.fileId
+                            const price = window.web3.utils.toWei(this.price.value.toString(),'Ether');
+                            this.props.donateFunds(id,price)
+          }}
+          >
                       <div className="form-group">
                         <br></br>
                           <input
-                            id="fileDescription"
+                            id="price"
                             type="text"
-                            
+                            ref = {(input) => { this.price = input}}                            
                             className="form-control text-monospace"
                             placeholder="Enter amount in eth"
                             />
