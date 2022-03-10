@@ -43,8 +43,9 @@ class Main extends Component {
                     <th scope="col" style={{ width: '230px'}}>description</th>
                     <th scope="col" style={{ width: '120px'}}>type</th>
                     <th scope="col" style={{ width: '90px'}}>funds</th>
+                    <th scope="col" style={{ width: '90px'}}>views</th>
                     <th scope="col" style={{ width: '90px'}}>date</th>
-                    <th scope="col" style={{ width: '80px'}}>uploader/view</th>
+                    <th scope="col" style={{ width: '80px'}}>uploader</th>
                     <th scope="col" style={{ width: '520px'}}>Price</th>
                     <th scope="col" style={{ width: '520px'}}>hash/view/get</th>
                     <th scope="col" style={{ width: '560px'}}>Donate</th>
@@ -60,14 +61,33 @@ class Main extends Component {
                         <td>{file.fileDescription}</td>
                         <td>{ file.fileType}</td>
                         <td>{ window.web3.utils.fromWei(file.funds.toString(),'Ether') } Eth</td>
+                        <td>{ file.views }</td>
                         <td>{moment.unix(file.uploadTime).format('h:mm:ss A M/D/Y')}</td>
                         <td>
+                        {
+                          (file.uploader == file.owner)
+                          ? <a
+                            href={"https://etherscan.io/address/" + file.uploader}
+                            rel="noopener noreferrer"
+                            target="_blank">Self Owned<br/>
+                            {file.uploader.substring(0,10)}...
+                          </a>
+                          :<div><a
+                            href={"https://etherscan.io/address/" + file.uploader}
+                            rel="noopener noreferrer"
+                            target="_blank">Creator<br/>
+                            {file.uploader.substring(0,10)}...
+                          </a>
                           <a
                             href={"https://etherscan.io/address/" + file.uploader}
                             rel="noopener noreferrer"
-                            target="_blank">
-                            {file.uploader.substring(0,10)}...
+                            target="_blank">Owner<br/>
+                            {file.owner.substring(0,10)}...
                           </a>
+                          </div>
+                          
+                        }
+                          
                          </td>
                          <td>
                          View Price: { file.viewPrice*0.0001 } Eth
@@ -138,13 +158,24 @@ class Main extends Component {
                         </td>
                         
                         <td>
+                        {
+                          <Button name = { file.fileId }
+                                      value = { file.viewPrice }
+                                      onClick = {(et) => {
+                                        
+                                           et.preventDefault()
+                                            this.props.onSell(et.target.name,et.target.value)
+                                      }} >Buy Asset</Button>
+
+                        }
                           {
 
+                            
                             ((file.fileType).match(/^audio/g))
 
                               ?<button  name = { file.fileId }
                                       value = { file.viewPrice }
-                                      id = { file.fileHash }
+                                      
                                       onClick = {(et) => {
                                         console.log(et.target.id)
                                            et.preventDefault()
@@ -170,6 +201,7 @@ class Main extends Component {
 
                             
                             }
+                        
                           
                         </td>
                       </tr>

@@ -126,6 +126,23 @@ class App extends Component {
     
   }
 
+  onSell = (id,price) =>
+  {
+    this.setState({ loading:true });
+    
+    this.state.dstorage.methods.sold(id).send( { from: this.state.account, value: window.web3.utils.toWei((price*0.8).toString(),'Ether') } )
+    .on('transactionHash', (hash) => {
+        this.setState({
+         loading: false,
+       })
+       window.location.reload()
+      }).on('error', (e) =>{
+        window.alert('Error')
+        this.setState({loading: false})
+      })
+    
+  }
+
 
 
 
@@ -188,6 +205,7 @@ class App extends Component {
               donateFunds = { this.donateFunds }
               viewed = { this.viewed }
               reDistribute = { this.reDistribute }
+              onSell = { this.onSell }
 
             />
         }

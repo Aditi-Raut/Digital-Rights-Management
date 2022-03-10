@@ -68,7 +68,15 @@ contract DStorage {
         require(_file.owner != msg.sender);
 
         //Pay the seller by sending them ether
-        address(_file.owner).transfer(msg.value);
+        if(_file.owner!=_file.uploader)
+        {
+          address(_file.owner).transfer(msg.value*80/100);
+          address(_file.uploader).transfer(msg.value*20/100);
+        }
+        else
+        {
+          address(_file.owner).transfer(msg.value);
+        }
         
         _file.funds = _file.funds + (msg.value);
 
@@ -116,7 +124,47 @@ contract DStorage {
 
 
         //Pay the seller by sending them ether
-        address(_file.owner).transfer(msg.value);
+        if(_file.owner!=_file.uploader)
+        {
+          address(_file.owner).transfer(msg.value*80/100);
+          address(_file.uploader).transfer(msg.value*20/100);
+        }
+        else
+        {
+          address(_file.owner).transfer(msg.value);
+        }
+        _file.funds = _file.funds + (msg.value);
+
+        //Update the Product
+        files[_id] = _file;
+
+        //Trigger an event
+        emit FundsDonated(fileCount,_file.fileHash,_file.fileType,_file.fileName,_file.fileDescription,_file.uploadTime,_file.funds,_file.views,_file.viewPrice, _file.uploader,_file.owner);
+
+  }
+
+  function reDistribute(uint _id) public payable {
+    File memory _file = files[_id];
+
+    address payable _creator = _file.owner;
+
+        //Make sure the product has a valid id
+        require(_file.fileId > 0 && _file.fileId <= fileCount);
+        //Require there is enough ether in the transaction
+        require(msg.value > 0);
+        require(_creator != msg.sender);
+
+
+        //Pay the seller by sending them ether
+        if(_file.owner!=_file.uploader)
+        {
+          address(_file.owner).transfer(msg.value*80/100);
+          address(_file.uploader).transfer(msg.value*20/100);
+        }
+        else
+        {
+          address(_file.owner).transfer(msg.value);
+        }
         
         _file.funds = _file.funds + (msg.value);
 
@@ -128,6 +176,32 @@ contract DStorage {
 
   }
 
+
+function sold(uint _id) public payable {
+    File memory _file = files[_id];
+
+    address payable _creator = _file.owner;
+
+        //Make sure the product has a valid id
+        require(_file.fileId > 0 && _file.fileId <= fileCount);
+        //Require there is enough ether in the transaction
+        require(msg.value > 0);
+        require(_creator != msg.sender);
+
+
+        //Pay the seller by sending them ether
+        address(_file.owner).transfer(msg.value);
+        _file.owner = msg.sender;
+        
+        _file.funds = _file.funds + (msg.value);
+
+        //Update the Product
+        files[_id] = _file;
+
+        //Trigger an event
+        emit FundsDonated(fileCount,_file.fileHash,_file.fileType,_file.fileName,_file.fileDescription,_file.uploadTime,_file.funds,_file.views,_file.viewPrice, _file.uploader,_file.owner);
+
+  }
 
 
 // Upload File function
