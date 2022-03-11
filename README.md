@@ -25,7 +25,7 @@ Additional features/suggestions:
 8. React JS
 9. Truffle Suite
 
-# The problem DRM solves
+# The problem this project solves
 In a centralized application(like Youtube), there is very less transparency of how the funds are transferred from the subscriber to the creator or from the company to the creator. They also have recommendation algorithms that tend to suppress less popular creators.
 
 Our Decentralized application intends to bring an end to this vagueness.
